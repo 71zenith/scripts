@@ -1,0 +1,18 @@
+#!/bin/sh
+action=$1
+if [ "$action" == "up" ]; then
+  pulsemixer --change-volume +5
+elif [ "$action" == "down" ]; then
+  pulsemixer --change-volume -5
+elif [ "$action" == "mute" ]; then
+  pulsemixer --toggle-mute
+fi
+
+vol=$(pulsemixer --get-volume | cut -d ' ' -f1)
+mute=$(pulsemixer --get-mute)
+
+if [ "$vol" == "0" ] || [ "$mute" == "1" ]; then
+  dunstify -a "changeVolume" -u normal -h string:x-dunst-stack-tag:volctrl "Muted"
+else
+  dunstify -a "changeVolume" -u normal -h string:x-dunst-stack-tag:volctrl -h int:value:"$vol" -h string:frcolor:#2b2b2b -h string:hlcolor:#00ffff "Vol: ${vol}%"
+fi

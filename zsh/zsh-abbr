@@ -1,0 +1,28 @@
+#!/bin/zsh
+typeset -a ealiases
+ealiases=()
+
+function abbr() {
+    alias $1
+    ealiases+=(${1%%\=*})
+}
+
+function expand-ealias() {
+    if [[ $LBUFFER =~ "\<(${(j:|:)ealiases})\$" ]]; then
+        zle _expand_alias
+        zle expand-word
+    fi
+    zle magic-space
+}
+zle -N expand-ealias
+
+bindkey ' '        expand-ealias
+bindkey '^ '       magic-space
+bindkey -M isearch " "      magic-space
+
+expand-alias-and-accept-line() {
+    expand-ealias
+    zle .backward-delete-char
+    zle .accept-line
+}
+zle -N accept-line expand-alias-and-accept-line
